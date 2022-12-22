@@ -15,6 +15,8 @@ const slideImg = document.getElementById("slide");
 const dartbullet = document.getElementById("dartbullet");
 
 const imghomingbullet = document.getElementById("homingbullet");
+const imgenemybullet = document.getElementById("bullet2");
+
 const imgnitroboost = document.getElementById("nitroboost");
 const shop = document.getElementById("bg3");
 const bg4 = document.getElementById("bg4");
@@ -44,6 +46,7 @@ const imgtikitrophy = document.getElementById("tiki");
 
 const dart = document.getElementById("dart");
 const homingdart = document.getElementById("homingdart");
+
 
 const bomber = document.getElementById("bomber");
 const skelly = document.getElementById("skelly");
@@ -550,6 +553,11 @@ class Enemy {
     this.name = "enemy";
     this.area = "start";
     this.type = type;
+    this.launchedx = false;
+    this.launchedy = false;
+    this.launched = true;
+
+
     // type = Math.ceil(Math.random() * 5);
     this.target = player;
     this.colbox = new Box(this, 0.3, 0.2, 0.4, 0.5);
@@ -577,15 +585,21 @@ class Enemy {
     const targetC = getCenter(this.target);
     const thisC = getCenter(this);
 
-    if (this.type != "7") {
+    if (this.type != "8" && this.type != "9" ) {
       let run = targetC.x - thisC.x;
       let rise = targetC.y - thisC.y;
       this.angle = Math.atan2(rise, run);
 
-      if (run) this.vx = this.speed * Math.cos(this.angle);
+      if (run) this.vx = this.speed * Math.cos(this.angle); 
       if (rise) this.vy = this.speed * Math.sin(this.angle);
     } else {
-      if (frameCount % 7 == 0) {
+      if (this.type != "9") {
+        let run = targetC.x - thisC.x;
+        let rise = targetC.y - thisC.y;
+        this.angle = Math.atan2(rise, run);
+        if (run && !this.launchedx) this.vx = this.speed * Math.cos(this.angle);  this.launchedx = true;
+        if (rise && !this.launchedy) this.vy = this.speed * Math.sin(this.angle);  this.launchedy = true;
+      } else if (frameCount % 7 == 0) {
         let run = targetC.x - thisC.x;
         let rise = targetC.y - thisC.y;
         this.angle = Math.atan2(rise, run);
@@ -627,7 +641,7 @@ class Enemy {
       if (this.dead) return ctx.drawImage(deadboy, this.x, this.y, this.w, this.h);
       const animY = Math.round((this.angle * 9) / Math.PI + 9) % 18;
       ctx.drawImage(golem, getAnimX(12, 8, 200), animY * 149, 130, 160, this.x, this.y, this.w, this.h);
-    } else if (this.type == "1") {
+    } else if (this.type == "2") {
       this.w = 70;
       this.h = 70;
       // if ((Math.abs(this.x - Projectile.x) + Math.abs(this.y - Projectile.y)) < 100){
@@ -644,7 +658,24 @@ class Enemy {
       const animY = Math.round((this.angle * 9) / Math.PI + 9) % 18;
       if (this.dead) return ctx.drawImage(deadboy, this.x, this.y, this.w, this.h);
       ctx.drawImage(homingdart, getAnimX(8, 5, 129), animY * 141, 129, 141, this.x, this.y, this.w, this.h);
-    } else if (this.type == "2") {
+    } else if (this.type == "1") {
+      this.w = 70;
+      this.h = 70;
+      // if ((Math.abs(this.x - Projectile.x) + Math.abs(this.y - Projectile.y)) < 100){
+      //   this.target = Projectile;
+      //   this.speed = -5;
+      // } else
+      if (Math.abs(this.x - player.x) + Math.abs(this.y - player.y) < 600) {
+        this.speed = -5;
+      } else if (Math.abs(this.x - player.x) + Math.abs(this.y - player.y) > 650) {
+        this.speed = 5;
+      } else {
+        this.speed = 0;
+      }
+      const animY = Math.round((this.angle * 9) / Math.PI + 9) % 18;
+      if (this.dead) return ctx.drawImage(deadboy, this.x, this.y, this.w, this.h);
+      ctx.drawImage(dart, getAnimX(8, 5, 129), animY * 141, 129, 141, this.x, this.y, this.w, this.h);
+    } else if (this.type == "3") {
       this.speed = 2.1;
       this.w = 60;
       this.h = 60;
@@ -658,7 +689,16 @@ class Enemy {
       if (this.dead) return ctx.drawImage(deadboy, this.x, this.y, this.w, this.h);
       const animY = Math.round((this.angle * 9) / Math.PI + 9) % 18;
       ctx.drawImage(golem, getAnimX(12, 8, 200), animY * 149, 130, 160, this.x, this.y, this.w, this.h);
-    } else if (this.type == "7") {
+    // bullets
+    } else if (this.type == "8") {
+      this.speed = 9.2;
+      this.w = 50;
+      this.h = 50;
+      if (this.launched); const animY = Math.round((this.angle * 8) / Math.PI + 8) % 16; 
+      this.launched = true;
+      ctx.drawImage(imgenemybullet, getAnimX(1, 8, 121), animY * 117, 121, 117, this.x, this.y, this.w, this.h);
+    this.launched = true;
+    } else if (this.type == "9") {
       this.speed = 9.2;
       this.w = 50;
       this.h = 50;
@@ -671,7 +711,11 @@ class Enemy {
   shoot() {
     if (frameCount % 250 == 0 && this.type == "1") {
       new Audio("shoot2.mp3").play();
-      new Enemy(this.x, this.y, "7");
+      new Enemy(this.x, this.y, "8");
+    }
+    if (frameCount % 250 == 0 && this.type == "2") {
+      new Audio("shoot2.mp3").play();
+      new Enemy(this.x, this.y, "9");
     }
   }
 
@@ -1221,7 +1265,7 @@ function spawn() {
 let enemiesspawned = 0;
 function enemywave() {
   if (frameCount % spawnfrequency == 0 && enemiesspawned < enemiesperwave) {
-    // new Enemy((c.width / 1.1 - 40) * Math.random(), hut.y + c.height * 1.5 - Math.random() * 200, Math.ceil(Math.random() * enemydifficulty));
+    new Enemy((c.width / 1.1 - 40) * Math.random(), hut.y + c.height * 1.5 - Math.random() * 200, Math.ceil(Math.random() * enemydifficulty));
     console.log("new enemy");
     enemiesspawned++;
   }
@@ -1232,10 +1276,11 @@ function enemywave() {
     enemydifficulty += 0.5;
     spawnfrequency = spawnfrequency * 0.7;
     enemiesspawned = 0;
-    spawnfrequency = Math.round(spawnfrequency);d
+    spawnfrequency = Math.round(spawnfrequency);
+    console.log(spawnfrequency);
   }
-  if (enemydifficulty > 5) {
-    enemydifficulty = 5;
+  if (enemydifficulty > 7) {
+    enemydifficulty = 7;
   }
 }
 //enemiesperwave
