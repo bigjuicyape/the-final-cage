@@ -420,6 +420,7 @@ class Projectile {
     this.name = "projectile";
     this.type = type;
     this.area = attacker.area;
+    this.hit = 0;
     this.attacker = attacker;
     new Audio("shoot.mp3").play();
 
@@ -492,13 +493,16 @@ class Projectile {
   }
 
   gCallback(col) {
+    this.explodex = this.x
+    this.explodey = this.y
+    this.explodeownerx = this.owner.x
+    this.explodeownery = this.owner.y
     this.owner.w = 400 * sizemultiplier;
     this.owner.h = 400 * sizemultiplier;
-    this.x -= 200 * sizemultiplier;
-    this.y -= 200 * sizemultiplier;
-    this.owner.x -= 200 * sizemultiplier;
-    this.owner.y -= 200 * sizemultiplier;
-    this.hittimes++;
+    this.x = this.explodex - 200 * sizemultiplier;
+    this.y = this.explodey - 200 * sizemultiplier;
+    this.owner.x = this.explodeownerx - 200 * sizemultiplier;
+    this.owner.y = this.explodeownery - 200 * sizemultiplier;
 
     explodewhen = frameCount;
     const thisP = col.owner;
@@ -564,6 +568,8 @@ class Enemy {
     this.hitbox = new Box(this, 0.3, 0.2, 0.4, 0.5);
     this.hurtbox = new Box(this, 0.3, 0.2, 0.4, 0.5, this.hurtCallback);
 
+    if (this.type !== "8"){
+    }
     areas[this.area].col.push(this);
     areas[this.area].hit.push(this);
     areas[this.area].hurt.push(this);
@@ -693,11 +699,12 @@ class Enemy {
     } else if (this.type == "8") {
       this.speed = 9.2;
       this.w = 50;
-      this.h = 50;
-      if (this.launched); const animY = Math.round((this.angle * 8) / Math.PI + 8) % 16; 
-      this.launched = true;
+      this.h = 50; 
+      const animY = Math.round((this.angle * 8) / Math.PI + 8) % 16;
       ctx.drawImage(imgenemybullet, getAnimX(1, 8, 121), animY * 117, 121, 117, this.x, this.y, this.w, this.h);
-    this.launched = true;
+      this.launched = false;
+      console.log(this.launched)
+      this.name = "projectile";
     } else if (this.type == "9") {
       this.speed = 9.2;
       this.w = 50;
@@ -710,10 +717,18 @@ class Enemy {
 
   shoot() {
     if (frameCount % 250 == 0 && this.type == "1") {
+      const targetC = getCenter(this.target);
+      const thisC = getCenter(this);
+      let e = targetC.x - thisC.x;
+      let e2 = targetC.y - thisC.y;
+      let grun = 0
+      let grun2 = 0
+      if (e) grun = 30 * Math.cos(this.angle);
+      if (e2) grun2 = 30 * Math.sin(this.angle);
       new Audio("shoot2.mp3").play();
-      new Enemy(this.x, this.y, "8");
+      new Enemy(this.x + grun, this.y + grun2, "8");
     }
-    if (frameCount % 250 == 0 && this.type == "2") {
+    if (frameCount % Math.ceil(Math.random * 250) == 0 && this.type == "2") {
       new Audio("shoot2.mp3").play();
       new Enemy(this.x, this.y, "9");
     }
