@@ -343,7 +343,7 @@ let shoes = {
 //     ctx.drawImage(this.i, this.x, this.y, this.w, this.h);
 //   },
 // };
-
+// hut.y
 let hut = {
   x: c.width / 2 - 120,
   y: c.height / 7,
@@ -375,7 +375,9 @@ let background = {
   w: 1401,
   h: 1745,
   draw: function () {
+    if (player.area == "start"){
     background.y += player.vy / 2;
+    }
 
     ctx.drawImage(background.i, 0, (background.y / c.height) * (1745 / 2), this.w, this.h / 2, 0, 0, c.width, c.height);
   },
@@ -421,6 +423,7 @@ class Projectile {
     this.type = type;
     this.area = attacker.area;
     this.hit = 0;
+    this.exploded = false
     this.attacker = attacker;
     new Audio("shoot.mp3").play();
 
@@ -493,18 +496,20 @@ class Projectile {
   }
 
   gCallback(col) {
-    this.explodex = this.x
-    this.explodey = this.y
-    this.explodeownerx = this.owner.x
-    this.explodeownery = this.owner.y
-    this.owner.w = 400 * sizemultiplier;
-    this.owner.h = 400 * sizemultiplier;
-    this.x = this.explodex - 200 * sizemultiplier;
-    this.y = this.explodey - 200 * sizemultiplier;
-    this.owner.x = this.explodeownerx - 200 * sizemultiplier;
-    this.owner.y = this.explodeownery - 200 * sizemultiplier;
-
-    explodewhen = frameCount;
+    if (!this.exploded){
+      this.explodex = this.x
+      this.explodey = this.y
+      this.explodeownerx = this.owner.x
+      this.explodeownery = this.owner.y
+      this.owner.w = 400 * sizemultiplier;
+      this.owner.h = 400 * sizemultiplier;
+      this.x = this.explodex - 200 * sizemultiplier;
+      this.y = this.explodey - 200 * sizemultiplier;
+      this.owner.x = this.explodeownerx - 200 * sizemultiplier;
+      this.owner.y = this.explodeownery - 200 * sizemultiplier;  
+      explodewhen = frameCount;
+    }
+    this.exploded = true
     const thisP = col.owner;
     thisP.i = imgpoison;
     removeFromArray(thisP, areas[thisP.area].col);
@@ -557,9 +562,9 @@ class Enemy {
     this.name = "enemy";
     this.area = "start";
     this.type = type;
-    this.launchedx = false;
-    this.launchedy = false;
-    this.launched = true;
+    // this.launchedx = false;
+    // this.launchedy = false;
+    // this.launched = true;
 
 
     // type = Math.ceil(Math.random() * 5);
@@ -703,7 +708,7 @@ class Enemy {
       const animY = Math.round((this.angle * 8) / Math.PI + 8) % 16;
       ctx.drawImage(imgenemybullet, getAnimX(1, 8, 121), animY * 117, 121, 117, this.x, this.y, this.w, this.h);
       this.launched = false;
-      console.log(this.launched)
+      // console.log(this.launched)
       this.name = "projectile";
     } else if (this.type == "9") {
       this.speed = 9.2;
@@ -1280,7 +1285,7 @@ function spawn() {
 let enemiesspawned = 0;
 function enemywave() {
   if (frameCount % spawnfrequency == 0 && enemiesspawned < enemiesperwave) {
-    new Enemy((c.width / 1.1 - 40) * Math.random(), hut.y + c.height * 1.5 - Math.random() * 200, Math.ceil(Math.random() * enemydifficulty));
+    // new Enemy((c.width / 1.1 - 40) * Math.random(), hut.y + c.height * 1.5 - Math.random() * 200, Math.ceil(Math.random() * enemydifficulty));
     console.log("new enemy");
     enemiesspawned++;
   }
